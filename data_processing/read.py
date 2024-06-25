@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import gzip
 import time
+import numpy as np
 
 
 def read_lite(path):
@@ -35,11 +36,11 @@ def read_lite(path):
             row['Liquid Precipitation Depth - One Hour'] = int(line[49:55])/10
 
             # Almost always -9999 (invalid)
-            #row['Liquid Precipitation Depth - Six Hour'] = int(line[55:61])/10
+            # row['Liquid Precipitation Depth - Six Hour'] = int(line[55:61])/10
 
             # get 24 highs and lows
-            row['24hr Air Temp High'] = -9999
-            row['24hr Air Temp Low'] = -9999
+            row['24hr Air Temp High'] = np.nan
+            row['24hr Air Temp Low'] = np.nan
             if n > 47:
                 data[n-48]['24hr Air Temp High'] = max(temps)
                 data[n-48]['24hr Air Temp Low'] = min(temps)
@@ -51,6 +52,8 @@ def read_lite(path):
             n += 1
 
     df = pd.DataFrame(data)
+    df = df.replace(-9999, np.nan)
+    df = df.replace(-999.9, np.nan)
     df['USAF ID'] = path[5:11]
     df = df.set_index(['USAF ID',
                        'Observation Year',
