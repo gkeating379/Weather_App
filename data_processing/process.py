@@ -1,47 +1,50 @@
 import numpy as np
 import pandas as pd
+from datetime import datetime, timedelta
+
+df = df.replace('', np.nan)
+df = df.fillna(method='ffill')
+df = df.dropna()
 
 
-def df_to_np(df, ids, start_year, end_year):
+def df_to_np_carry(df, ids, start_year, end_year, context_window):
     '''Converts a dataframe to an np array ready
-    to be passed for training/testing'''
+    to be passed for training/testing
+
+    df => dataframe with ISD Lite
+    ids => List[str] of station ids
+    start_year => int start of time range
+    end_year => int end of time range
+    context_window => int, number of previous results used to predict next'''
+
     blocks = []
     targets = []
-    for id in ids:
+
+    df.index = pd.MultiIndex.from_tuples([(id, datetime(year, month, day, hour))
+                                          for id, year, month, day, hour in df.index])
+
+    start_date = datetime(start_year, 1, 1)
+    end_date = datetime(end_year, 12, 31, 23)
+
+    for i, id in enumerate(ids):
+        print(f'{i+1}/{len(ids)}')
         id = int(id)
-        year = start_year
-        month = 1
-        day = 1
-        hour = 0
+        current_date = start_date
         block = []
-        while year <= end_year:
-            if (id, year, month, day, hour) in df.index:
-                cur = df.loc[(id, year, month, day, hour)]
-                if cur['24hr Air Temp High'] != -9999:
-                    block.append(cur.values)
-                if len(block) == 48:
+        while current_date <= end_date:
+            if (id, current_date) in df.index:
+                cur = df.loc[(id, current_date)]
+                block.append(cur.values)
+
+                if len(block) == context_window:
                     tmp = np.array(block)
                     targets.append(tmp[-1, -2:])
                     blocks.append(tmp[:, :-2])
-                    block = []
-            year, month, day, hour = next_time(year, month, day, hour)
+                    # no overlaps
+                    # block = []
+                    # overlaps
+                    block = block[1:]
 
-    return blocks, targets
+            current_date += timedelta(hours=1)
 
-
-def next_time(year, month, day, hour):
-
-    hour += 1
-    if hour > 23:
-        hour -= 24
-        day += 1
-
-    if day > 31:
-        day -= 31
-        month += 1
-
-    if month > 12:
-        month -= 12
-        year += 1
-
-    return year, month, day, hour
+    return np.array(blocks), np.array(targets)
