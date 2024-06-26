@@ -2,12 +2,8 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 
-df = df.replace('', np.nan)
-df = df.fillna(method='ffill')
-df = df.dropna()
 
-
-def df_to_np_carry(df, ids, start_year, end_year, context_window):
+def df_to_np(df, ids, start_year, end_year, context_window):
     '''Converts a dataframe to an np array ready
     to be passed for training/testing
 
