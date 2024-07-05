@@ -36,7 +36,7 @@ def read_lite(path):
             row['Liquid Precipitation Depth - One Hour'] = int(line[49:55])/10
 
             # Almost always -9999 (invalid)
-            # row['Liquid Precipitation Depth - Six Hour'] = int(line[55:61])/10
+            # row['Liquid Precipitation Depth - Six Hour']= int(line[55:61])/10
 
             # get 24 highs and lows
             row['24hr Air Temp High'] = np.nan
