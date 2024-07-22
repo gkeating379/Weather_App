@@ -46,22 +46,27 @@ def LSTM_Model(seq_len, d_model):
     model => tf model'''
     input = Input(shape=(seq_len, d_model), name='input')
 
-    lstm1 = LSTM(units=d_model, return_sequences=True, name='lstm1')(input)
-    add1 = Add(name='add1')([input, lstm1])
+    # LSTM layer 1
+    lstm1 = LSTM(units=d_model*2, return_sequences=True, name='lstm1')(input)
+    proj1 = Dense(d_model)(lstm1)
+    add1 = Add(name='add1')([input, proj1])
     norm1 = LayerNormalization(name='norm1')(add1)
 
+    # LSTM layer 2
     lstm2 = LSTM(units=d_model, return_sequences=True, name='lstm2')(norm1)
-    add2 = Add(name='add2')([input, lstm2])
+    proj2 = Dense(d_model)(lstm2)
+    add2 = Add(name='add2')([input, proj2])
     norm2 = LayerNormalization(name='norm2')(add2)
 
-    lstm3 = LSTM(units=d_model, return_sequences=True, name='lstm3')(norm2)
+    # LSTM output
+    lstm_out = LSTM(units=d_model*2, return_sequences=True, name='lstm_out')(norm2)
 
-    # pool = tf.keras.layers.GlobalAveragePooling1D()(norm)
-    # flat = tf.keras.layers.Flatten(name='flatten')(lstm3)
+    # Denorm
+    denorm = Dense(d_model, activation='linear', name='denorm')(lstm_out)
+    denorm2 = Dense(d_model, activation='linear', name='denorm2')(denorm)
+    denorm3 = Dense(d_model, name='denorm3')(denorm2)
 
-    denorm = Dense(d_model, name='denorm')(lstm3)
-
-    model = tf.keras.models.Model(input, denorm)
+    model = tf.keras.models.Model(input, denorm3)
     model.summary()
 
     return model

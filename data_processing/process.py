@@ -48,7 +48,7 @@ def df_to_np_hl(df, ids, start_year, end_year, context_window, overlap=False):
     return np.array(blocks), np.array(targets)
 
 
-def df_to_np_seq(df, ids, start_year, end_year, context_window, out_window, overlap=False):
+def df_to_np_seq(df, ids, start_year, end_year, context_window, overlap=False):
     '''Converts a dataframe to an np array ready
     to be passed for training/testing
     FOR Sequence to Sequence Targetting
@@ -58,7 +58,6 @@ def df_to_np_seq(df, ids, start_year, end_year, context_window, out_window, over
     start_year => int start of time range
     end_year => int end of time range
     context_window => int, number of previous results used to predict next
-    out_window => int, number of sequences to predict
     overlap => bool, if a block is cw away from the last block or 1'''
 
     blocks = []
@@ -81,7 +80,7 @@ def df_to_np_seq(df, ids, start_year, end_year, context_window, out_window, over
                 cur = df.loc[(id, current_date)]
                 block.append(cur.values)
 
-                if len(block) == context_window + out_window:
+                if len(block) == context_window + 1:
                     tmp = np.array(block)
                     targets.append(tmp[1:, :-2])
                     blocks.append(tmp[:-1, :-2])
