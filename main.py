@@ -1,19 +1,9 @@
 from data_processing import process, read, verify
 import pandas as pd
 
-###############################################################
-# original
-# USAFs_train = ['744864', '744860', '725030', '725020', '725053']
-# USAFs_test = ['720553']
-###############################################################
-
-# file name
-# USAF iden - WBAN iden - Year
-path = 'data_processing\\744864-54787-2024'
-# path = 'data_processing\\725030-14732-2024'
-
 start_year, end_year = 2010, 2024
-USAFs_train = ['720553', '744860', '725030', '725020', '725053']
+# Port Authority, JFK, LGA, EWR, Central Park
+USAFs_train = ['720553', '744860', '725030', '725020', '725053'] 
 USAFs_test = ['744864']
 years = [year for year in range(start_year, end_year+1)]
 lite_base_url = 'https://www.ncei.noaa.gov/pub/data/noaa/isd-lite'
